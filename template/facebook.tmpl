@@ -1,0 +1,102 @@
+<html>
+<head>
+<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+</head>
+<body>
+<div id="fb-root"></div>
+<script>
+  function __onLogin(response) {
+      if(typeof(onFbLogin) == 'function') { 
+          onFbLogin(response);
+      } 
+  }
+
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{{.}}',// App ID
+      channelUrl : document.location.origin+'/_channel', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : false// parse XFBML
+    });
+
+
+    // Additional initialization code here
+
+    FB.getLoginStatus(function(response) {
+       if (response.status === 'connected') {
+           // the user is logged in and has authenticated your
+           // app, and response.authResponse supplies
+           // the user's ID, a valid access token, a signed
+           // request, and the time the access token
+           // and signed request each expire
+           __onLogin(response);
+       } else if (response.status === 'not_authorized') {
+           // the user is logged in to Facebook,
+           // but has not authenticated your app
+       } else {
+           // the user isn't logged in to Facebook.
+       }
+     });
+
+     FB.Event.subscribe('auth.authResponseChange', function(response) {
+        __onLogin(response);
+     });
+  };
+
+
+
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+
+
+  function loginFB() {
+          if(FB) {
+                  FB.login(function(response) {
+                           // handle the response
+                  }, {scope: 'user_activities,user_checkins,user_likes,user_photos,user_status,read_stream,publish_checkins,publish_stream,publish_actions' });
+          }
+  }
+</script>
+<script>
+  function onFbLogin(response) {
+      console.log('The status of the session is: ' + response.status);
+      FB.api('/me?fields=id,name', function(mydata) {
+          //console.log(mydata);
+          var uContainer = document.getElementById('faceuser');
+          if(uContainer) {
+              uContainer.innerHTML = '<a href="#"><div><img src="http://graph.facebook.com/'+mydata.id+'/picture" width="30px" height="30px"/> ' + mydata.name + '</div></a>';
+          } else {
+              console.log('cannot show user');
+          }
+      });
+  }
+</script>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">Trailers</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Sony Pictures</a></li>
+            </ul>
+            <p class="navbar-text pull-right" id="faceuser"><a href="#" onclick="loginFB();return false;">Login</a></p>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+</body>
+</html>
