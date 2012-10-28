@@ -45,5 +45,35 @@ func main() {
 			fmt.Fprintln(w, string(m))
 		}
 	})
+
+	http.HandleFunc("/friends", func(w http.ResponseWriter, r *http.Request) {
+		f := facebook.New(app_id, secret, r)
+
+		f.Fql("SELECT uid2 FROM friend WHERE uid1=me()", func(result string, e error) {
+			if e != nil {
+				log.Println(e)
+				fmt.Fprintf(w, "error")
+			} else {
+				fmt.Fprintf(w, result)
+			}
+		})
+	})
+
+	http.HandleFunc("/allfriends", func(w http.ResponseWriter, r *http.Request) {
+		f := facebook.New(app_id, secret, r)
+		queries := make(map[string]string)
+		queries["all friends"] = "SELECT uid2 FROM friend WHERE uid1=me()"
+		queries["my name"] = "SELECT name FROM user WHERE uid=me()"
+
+		f.Fql(queries, func(result string, e error) {
+			if e != nil {
+				log.Println(e)
+				fmt.Fprintf(w, "error")
+			} else {
+				fmt.Fprintf(w, result)
+			}
+		})
+	})
+
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }

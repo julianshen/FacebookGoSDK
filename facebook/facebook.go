@@ -10,11 +10,12 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 )
 
-const END_POINT = "https://graph.facebook.com"
+const GRAPH_END_POINT = "https://graph.facebook.com"
 
 type FacebookAuthData struct {
 	Algorithm    string
@@ -66,7 +67,7 @@ func (f *FacebookContext) ParseSignedRequest(signed_request string) {
 	v.Set("redirect_uri", "")
 	v.Set("code", f.auth.Code)
 
-	request_url := END_POINT + "/oauth/access_token?" + v.Encode()
+	request_url := GRAPH_END_POINT + "/oauth/access_token?" + v.Encode()
 	resp, error := http.Get(request_url)
 
 	if error != nil {
@@ -114,7 +115,7 @@ func (f *FacebookContext) Get(path string, params *url.Values, cb func(string, e
 		params.Set("access_token", f.AccessToken())
 	}
 
-	resp, error := http.Get(END_POINT + path + "?" + params.Encode())
+	resp, error := http.Get(GRAPH_END_POINT + path + "?" + params.Encode())
 
 	if error != nil {
 		cb("", error)
@@ -147,6 +148,24 @@ func (f *FacebookContext) Me() (user *Fuser, e error) {
 		e = json.Unmarshal([]byte(result), user)
 		return
 	})
+	return
+}
+
+func (f *FacebookContext) Fql(queries interface{}, cb func(string, error)) {
+	var q string
+
+	if reflect.TypeOf(queries).Kind() == reflect.Map {
+		//multiquery
+		qstr, _ := json.Marshal(queries)
+		q = string(qstr)
+	} else {
+		q = reflect.ValueOf(queries).String()
+	}
+
+	params := url.Values{}
+	params.Add("q", q)
+	f.Get("/fql", &params, cb)
+
 	return
 }
 
