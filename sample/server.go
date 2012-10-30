@@ -1,9 +1,9 @@
 package main
 
 import (
-	facebook "github.com/julianshen/FacebookGoSDK"
 	"encoding/json"
 	"fmt"
+	facebook "github.com/julianshen/FacebookGoSDK"
 	"html/template"
 	"log"
 	"net/http"
