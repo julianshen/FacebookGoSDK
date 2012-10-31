@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	app_id := os.ExpandEnv("$FACEBOOK_APPID")
-	secret := os.ExpandEnv("$FACEBOOK_SECRET")
+	app_id := os.Getenv("FACEBOOK_APPID")
+	secret := os.Getenv("FACEBOOK_SECRET")
 	http.Handle("/", http.FileServer(http.Dir("./html")))
 	http.HandleFunc("/facebook.html", func(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.ParseFiles("./template/facebook.tmpl")
