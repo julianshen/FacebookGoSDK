@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -167,6 +168,28 @@ func (f *FacebookContext) Fql(queries interface{}, cb func(string, error)) {
 	f.Get("/fql", &params, cb)
 
 	return
+}
+
+func RealtimeHandler(verifyToken string, onDataUpdated func(http.ResponseWriter, *http.Request)) http.Handler {
+	var handler http.HandlerFunc
+	handler = func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			hub_mode := r.FormValue("hub_mode")
+			hub_verify_token := r.FormValue("hub_verify_token")
+			hub_challenge := r.FormValue("hub_challenge")
+
+			if hub_mode != "" && verifyToken == hub_verify_token {
+				fmt.Fprintln(w, hub_challenge)
+			} else {
+				fmt.Fprintln(w, "!!!error!!!")
+			}
+		} else if r.Method == "POST" {
+			onDataUpdated(w, r)
+		}
+		return
+	}
+
+	return handler
 }
 
 func NewBasicContext(app_id string, secret string) *FacebookContext {
