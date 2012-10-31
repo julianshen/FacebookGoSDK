@@ -14,6 +14,11 @@ func main() {
 	app_id := os.Getenv("FACEBOOK_APPID")
 	secret := os.Getenv("FACEBOOK_SECRET")
 	http.Handle("/", http.FileServer(http.Dir("./html")))
+
+	http.Handle("/realtime", facebook.RealtimeHandler("imjulian", func(w http.ResponseWriter, r *http.Request) {
+		return
+	}))
+
 	http.HandleFunc("/facebook.html", func(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.ParseFiles("./template/facebook.tmpl")
 		t.Execute(w, app_id)
