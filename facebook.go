@@ -178,6 +178,10 @@ func RealtimeHandler(verifyToken string, onDataUpdated func(http.ResponseWriter,
 			hub_verify_token := r.FormValue("hub.verify_token")
 			hub_challenge := r.FormValue("hub.challenge")
 
+			log.Println("hub_mode: " + hub_mode)
+			log.Println("hub_challenge: " + hub_challenge)
+			log.Println("hub_verify_token: " + hub_verify_token)
+
 			if hub_mode != "" && verifyToken == hub_verify_token {
 				fmt.Fprintln(w, hub_challenge)
 			} else {
