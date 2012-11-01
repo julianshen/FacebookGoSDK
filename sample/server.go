@@ -15,7 +15,7 @@ func main() {
 	secret := os.Getenv("FACEBOOK_SECRET")
 	http.Handle("/", http.FileServer(http.Dir("./html")))
 
-	http.Handle("/realtime", facebook.RealtimeHandler("imjulian", func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/realtime", facebook.RealtimeHandler("imjulian", func(w http.ResponseWriter, json string, e error) {
 		return
 	}))
 

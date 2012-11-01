@@ -170,7 +170,7 @@ func (f *FacebookContext) Fql(queries interface{}, cb func(string, error)) {
 	return
 }
 
-func RealtimeHandler(verifyToken string, onDataUpdated func(http.ResponseWriter, *http.Request)) http.Handler {
+func RealtimeHandler(verifyToken string, onDataUpdated func(w http.ResponseWriter, json string, e error)) http.Handler {
 	var handler http.HandlerFunc
 	handler = func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
@@ -188,7 +188,9 @@ func RealtimeHandler(verifyToken string, onDataUpdated func(http.ResponseWriter,
 				fmt.Fprintln(w, "!!!error!!!")
 			}
 		} else if r.Method == "POST" {
-			onDataUpdated(w, r)
+			defer r.Body.Close()
+			json, e := ioutil.ReadAll(r.Body)
+			onDataUpdated(w, json, e)
 		}
 		return
 	}
